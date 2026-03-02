@@ -1,0 +1,61 @@
+<div class="reservas-container">
+  <div class="header">
+    <h1>Reservas</h1>
+    <a routerLink="/reservas/nueva" class="btn-nueva">Nueva reserva</a>
+  </div>
+
+  @if (loading()) {
+    <p class="loading">Cargando reservas...</p>
+  } @else if (error()) {
+    <div class="error-box">
+      <p class="error">{{ error() }}</p>
+      <button type="button" class="btn-reintentar" (click)="cargarReservas()">
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <table class="reservas-table">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Servicio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (reserva of reservas(); track reserva.id) {
+          <tr [class.cancelada]="reserva.status === 'CANCELLED'">
+            <td>{{ reserva.customerName }}</td>
+            <td>{{ reserva.date }}</td>
+            <td>{{ reserva.time }}</td>
+            <td>{{ reserva.service }}</td>
+            <td>
+              <span [class.badge-activa]="reserva.status === 'ACTIVA'"
+                    [class.badge-cancelada]="reserva.status === 'CANCELLED'">
+                {{ reserva.status }}
+              </span>
+            </td>
+            <td>
+              @if (reserva.status === 'ACTIVA') {
+                <button type="button"
+                        class="btn-cancelar"
+                        (click)="cancelarReserva(reserva.id)">
+                  Cancelar
+                </button>
+              } @else {
+                <span class="texto-cancelada">—</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="sin-reservas">No hay reservas registradas</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

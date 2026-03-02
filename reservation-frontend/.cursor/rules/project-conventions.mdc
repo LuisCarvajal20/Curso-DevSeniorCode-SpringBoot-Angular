@@ -1,0 +1,35 @@
+---
+description: Convenciones y estándares del proyecto reservation-frontend
+alwaysApply: true
+---
+
+# Convenciones del Proyecto
+
+Proyecto Angular para el frontend del sistema de reservas.
+
+## Estructura y Estilo
+
+- Usar componentes funcionales con standalone components
+- Mantener los componentes pequeños y enfocados en una sola responsabilidad
+- Usar TypeScript estricto
+
+## Angular
+
+- Preferir signals para el estado reactivo cuando sea apropiado
+- Usar inyección de dependencias con `inject()` en lugar de constructor cuando sea posible
+- Seguir las convenciones de naming de Angular (PascalCase para componentes, camelCase para propiedades)
+
+## Servicios
+
+- Usar HttpClient para comunicación con el backend
+- Usar `inject()` para inyección de dependencias (ej: `inject(HttpClient)`)
+- Usar variable de entorno `environment.apiUrl` para la URL del backend
+- Registrar `provideHttpClient()` en `app.config.ts`
+- Definir modelos/interfaces en `src/app/models/` para tipar las operaciones
+- Documentar métodos públicos con JSDoc
+
+## Código
+
+- Responder siempre en español cuando el usuario escriba en español
+- Mantener el código limpio y legible
+- Documentar funciones y componentes complejos

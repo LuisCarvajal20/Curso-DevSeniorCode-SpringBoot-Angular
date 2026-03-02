@@ -1,0 +1,64 @@
+<div class="form-container">
+  <h1>Nueva reserva</h1>
+
+  <form [formGroup]="formulario" (ngSubmit)="enviar()" class="reserva-form">
+    <div class="form-group">
+      <label for="nombreCliente">Nombre del cliente</label>
+      <input id="nombreCliente"
+             type="text"
+             formControlName="nombreCliente"
+             placeholder="Ej: Juan Pérez"
+             autocomplete="name" />
+      @if (formulario.get('nombreCliente')?.invalid && formulario.get('nombreCliente')?.touched) {
+        <span class="error-message">
+          El nombre es obligatorio y debe tener al menos 2 caracteres
+        </span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="fecha">Fecha</label>
+      <input id="fecha"
+             type="date"
+             formControlName="fecha" />
+      @if (formulario.get('fecha')?.invalid && formulario.get('fecha')?.touched) {
+        <span class="error-message">La fecha es obligatoria</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="hora">Hora</label>
+      <input id="hora"
+             type="time"
+             formControlName="hora" />
+      @if (formulario.get('hora')?.invalid && formulario.get('hora')?.touched) {
+        <span class="error-message">La hora es obligatoria</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="servicio">Servicio</label>
+      <select id="servicio" formControlName="servicio">
+        <option value="" disabled>Seleccione un servicio</option>
+        @for (servicio of servicios; track servicio) {
+          <option [value]="servicio">{{ servicio }}</option>
+        }
+      </select>
+      @if (formulario.get('servicio')?.invalid && formulario.get('servicio')?.touched) {
+        <span class="error-message">El servicio es obligatorio</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="enviando()" class="btn-submit">
+        {{ enviando() ? 'Guardando...' : 'Crear reserva' }}
+      </button>
+      <a routerLink="/reservas" class="btn-cancelar">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<app-toast [message]="toastMessage()"
+           [visible]="toastVisible()"
+           type="error"
+           (closed)="cerrarToast()" />
