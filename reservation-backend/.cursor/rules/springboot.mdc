@@ -1,0 +1,110 @@
+---
+description: Buenas prácticas Java 25 y Spring Boot para el backend de reservas
+alwaysApply: true
+---
+
+# Spring Boot - Estándares del proyecto
+
+## Estructura del proyecto
+
+Respetar esta estructura bajo `src/main/java/com/devsenior/lcarvajal/reservation/`:
+
+```
+com.devsenior.lcarvajal.reservation/
+├── BackendReservasApplication.java    # Clase principal @SpringBootApplication
+├── config/                            # Configuración (Security, CORS, beans)
+├── controller/                        # REST controllers (@RestController)
+├── dto/                               # DTOs como Java records (request/response)
+├── entity/                            # Entidades JPA (@Entity)
+├── repository/                        # Interfaces JpaRepository
+├── service/                            # Lógica de negocio (@Service)
+└── exception/                         # Handlers (@ControllerAdvice), excepciones custom
+```
+
+- **config**: clases de configuración, sin lógica de negocio.
+- **controller**: solo delegar a servicios; validar con Bean Validation.
+- **dto**: exclusivamente Java records para entrada/salida de la API.
+- **entity**: entidades JPA; nombres en inglés.
+- **repository**: interfaces que extienden JpaRepository/JpaSpecificationExecutor.
+- **service**: reglas de negocio; transacciones con @Transactional cuando corresponda.
+- **exception**: @ControllerAdvice para respuestas de error unificadas.
+
+## Convenciones de nombres (en inglés)
+
+- **Clases**: PascalCase (ej. `ReservationService`, `TableController`).
+- **Métodos y atributos**: camelCase (ej. `findById`, `customerName`).
+- **Constantes**: UPPER_SNAKE_CASE (ej. `MAX_TABLE_CAPACITY`).
+- **Paquetes**: solo minúsculas (ej. `controller`, `dto`).
+
+## Javadoc en métodos públicos
+
+Todo método público debe tener Javadoc actualizado:
+
+```java
+/**
+ * Finds a reservation by its unique identifier.
+ *
+ * @param id the reservation ID (must not be null)
+ * @return the reservation if found
+ * @throws ReservationNotFoundException if no reservation exists for the given id
+ */
+public Reservation findById(Long id) { ... }
+```
+
+Incluir: descripción breve, `@param` para cada parámetro, `@return` cuando aplique, `@throws` para excepciones declaradas.
+
+## DTOs con Java records
+
+Usar **solo Java records** para DTOs. Validación con Bean Validation en los componentes del record:
+
+```java
+package com.devsenior.lcarvajal.reservation.dto;
+
+import jakarta.validation.constraints.*;
+
+/**
+ * Request body for creating a new reservation.
+ *
+ * @param tableId   ID of the table to reserve
+ * @param customerName name of the customer
+ * @param dateTime  requested date and time
+ */
+public record CreateReservationRequest(
+    @NotNull Long tableId,
+    @NotBlank @Size(max = 255) String customerName,
+    @NotNull java.time.LocalDateTime dateTime
+) {}
+```
+
+- Records inmutables; sin setters. Para respuestas, definir records con los campos necesarios.
+- Documentar el record y sus componentes en Javadoc cuando aporte claridad.
+
+## Buenas prácticas Java 25 y Spring Boot
+
+- **Inmutabilidad**: preferir records, `final` en campos y variables cuando sea posible.
+- **Null-safety**: usar `Optional` para retornos que pueden ser vacíos; evitar `null` en APIs públicas.
+- **Streams y patrones modernos**: usar expresiones switch (Java 21+), pattern matching, y streams para código más legible.
+- **Servicios**: interfaces para la capa de servicio cuando haya varias implementaciones o se facilite testing.
+- **Transacciones**: `@Transactional(readOnly = true)` en métodos de solo lectura; sin readOnly en escritura.
+- **Controladores**: métodos del controlador delgados; documentar con Javadoc el propósito del endpoint y parámetros relevantes.
+- **Validación**: validar en el controller con `@Valid` o `@Validated` en los DTOs de entrada.
+- **Manejo de errores**: respuestas HTTP coherentes desde `@ControllerAdvice`; no exponer detalles internos en producción.
+
+## Ejemplo de método público documentado (servicio)
+
+```java
+/**
+ * Creates a new reservation for the given request.
+ * Validates table availability and capacity before persisting.
+ *
+ * @param request the creation request (must be valid and not null)
+ * @return the created reservation DTO
+ * @throws TableNotFoundException      if the table does not exist
+ * @throws TableNotAvailableException if the table is already reserved for the requested time
+ */
+public ReservationResponse create(CreateReservationRequest request) {
+    // ...
+}
+```
+
+Seguir estas reglas en todo el código Java del backend de reservas.
